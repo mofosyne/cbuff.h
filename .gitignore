@@ -52,5 +52,5 @@ Mkfile.old
 dkms.conf
 
 .vscode/
-cbuff_index_test
-cbuff_pointer_test
+cbuff_uint8_index_test
+cbuff_uint8_pointer_test
