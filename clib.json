@@ -1,5 +1,5 @@
 {
-  "name": "cbuff.h",
+  "name": "cbuff",
   "version": "0.0.2",
   "repo": "mofosyne/cbuff.h",
   "description": "Malloc free, minimum overhead implementation of a circular buffer.",
