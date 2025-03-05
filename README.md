@@ -9,8 +9,6 @@ Malloc free, minimum overhead implementation of a circular buffer.
 
 Static inlined handlers for speed and ease of usage in various projects.
 
-Both index and pointer approach is provided
-
 This is based on harshkn's circular buffer: https://gist.github.com/harshkn/909546
 
 ## Design Considerations Applied
