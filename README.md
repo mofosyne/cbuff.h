@@ -68,9 +68,11 @@ How this helps with determining full/empty state is that the TAIL index and the 
     - Ultimately opted against this approach as it relies on a slot that must always remain empty 
       to ensure clear disambiguation between empty and full buffer state (one slot empty).
 
+
 ## Recommended Readings
 
 * <https://www.codeproject.com/articles/43510/lock-free-single-producer-single-consumer-circular>
+* <https://andrea.lattuada.me/blog/2019/the-design-and-implementation-of-a-lock-free-ring-buffer-with-contiguous-reservations.html>
 
 
 ## History:
