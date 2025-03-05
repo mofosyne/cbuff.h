@@ -13,7 +13,7 @@ CFLAGS += -Wall -std=c11 -pedantic
 all: test
 
 .PHONY: test
-test: cbuff_uint8_index_test cbuff_uint8_pointer_test
+test: cbuff_uint8_test
 
 .PHONY: readme_update
 readme_update:
@@ -28,19 +28,9 @@ format:
 	clang-format -i *.h
 
 .PHONY:
-cbuff_uint8_index_test: cbuff_uint8_index_test.c cbuff_uint8_index.h
-	$(CC) $(CFLAGS) $(LDFLAGS) -o cbuff_uint8_index_test cbuff_uint8_index_test.c
-	./cbuff_uint8_index_test
-
-.PHONY:
-cbuff_uint8_pointer_test: cbuff_uint8_pointer_test.c cbuff_uint8_pointer.h
-	$(CC) $(CFLAGS) $(LDFLAGS) -o cbuff_uint8_pointer_test cbuff_uint8_pointer_test.c
-	./cbuff_uint8_pointer_test
-
-#.PHONY:
-#example: example.c
-#	$(CC) $(CFLAGS) $(LDFLAGS) -o example example.c
-#	./example
+cbuff_uint8_test: cbuff_uint8_test.c cbuff_uint8.h
+	$(CC) $(CFLAGS) $(LDFLAGS) -o cbuff_uint8_test cbuff_uint8_test.c
+	./cbuff_uint8_test
 
 .PHONY:
 %.o: %.c
@@ -48,5 +38,4 @@ cbuff_uint8_pointer_test: cbuff_uint8_pointer_test.c cbuff_uint8_pointer.h
 
 .PHONY:
 clean:
-	rm -f cbuff_uint8_index_test
-	rm -f cbuff_uint8_pointer_test
+	rm -f cbuff_uint8_test

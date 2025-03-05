@@ -3,21 +3,41 @@
  *******************************************************************************/
 #include <stdio.h>
 
-#include "cbuff_uint8_pointer.h"
+#include "cbuff_uint8.h"
 
 #define BUFF_TEST_SIZE 4
+
+void circularBuffer_inspect(cbuff_uint8_t *cb, char *msg)
+{
+    printf("\n%s : H=%ld T=%ld", msg, cb->head, cb->tail);
+    printf("\n%s : ", msg);
+    for (int i = 0; i < cb->capacity; i++)
+    {
+        printf(" %c", (((cb->head % cb->capacity) == i) && ((cb->tail % cb->capacity) == i)) ? 'X' : ((cb->head % cb->capacity) == i) ? 'H' : ((cb->tail % cb->capacity) == i) ? 'T' : ' ');
+    }
+    printf("\n%s : ", msg);
+    for (int i = 0; i < cb->capacity; i++)
+    {
+        printf(" %d", cb->buffer[i]);
+    }
+    printf("\n");
+}
 
 // Minimum Assert Unit (https://jera.com/techinfo/jtns/jtn002)
 #define mu_assert(message, test)                                                                                                                                                                       \
     do                                                                                                                                                                                                 \
     {                                                                                                                                                                                                  \
         if (!(test))                                                                                                                                                                                   \
+        {                                                                                                                                                                                              \
+            circularBuffer_inspect(&prefilledBuff, "ERR");                                                                                                                                             \
             return LINEINFO " : (expect:" #test ") " message;                                                                                                                                          \
+        }                                                                                                                                                                                              \
     } while (0)
 #define mu_run_test(test)                                                                                                                                                                              \
     do                                                                                                                                                                                                 \
     {                                                                                                                                                                                                  \
         char *message = test();                                                                                                                                                                        \
+        printf("* Testing %-30s - %s\n", #test, message ? "FAIL" : "PASS");                                                                                                                                                                                 \
         if (message)                                                                                                                                                                                   \
             return message;                                                                                                                                                                            \
     } while (0)
@@ -26,16 +46,6 @@
 #define LINEINFO_STR(X) #X
 #define LINEINFO__STR(X) LINEINFO_STR(X)
 #define LINEINFO __FILE__ " : " LINEINFO__STR(__LINE__)
-
-#if 0 // Dev Note: Use this to debug the content of the circular buffer
-void circularBuffer_inspect(cbuff_uint8_t *cb, char * msg)
-{
-  printf("\n%s : ", msg);
-  for (int i = 0 ; i < cb->capacity ; i++)
-    printf(" %d", cb->buffer[i]);
-  printf("\n");
-}
-#endif
 
 char *cbuff_uint8_test_prefill(void)
 {
@@ -50,13 +60,10 @@ char *cbuff_uint8_test_prefill(void)
     mu_assert("", !cbuff_uint8_is_full(&prefilledBuff));
     mu_assert("", cbuff_uint8_is_empty(&prefilledBuff));
     mu_assert("", prefilledBuff.capacity == initBuff.capacity);
-    mu_assert("", prefilledBuff.count == initBuff.count);
     mu_assert("", prefilledBuff.buffer == initBuff.buffer);
-    mu_assert("", prefilledBuff.bufferEnd == initBuff.bufferEnd);
     mu_assert("", prefilledBuff.head == initBuff.head);
     mu_assert("", prefilledBuff.tail == initBuff.tail);
     cbuff_uint8_reset(&initBuff);
-    mu_assert("", prefilledBuff.count == initBuff.count);
     mu_assert("", prefilledBuff.head == initBuff.head);
     mu_assert("", prefilledBuff.tail == initBuff.tail);
     return 0;
@@ -68,8 +75,9 @@ char *cbuff_uint8_test_general(void)
     cbuff_uint8_t prefilledBuff = cbuff_uint8_struct_prefill(cbuffer);
     for (int i = 0; i < BUFF_TEST_SIZE; i++)
     {
+        //circularBuffer_inspect(&prefilledBuff, "XXX");
         mu_assert("", !cbuff_uint8_is_full(&prefilledBuff));
-        mu_assert("", cbuff_uint8_enqueue(&prefilledBuff, i));
+        mu_assert("", cbuff_uint8_enqueue(&prefilledBuff, i + 1));
         mu_assert("", !cbuff_uint8_is_empty(&prefilledBuff));
         mu_assert("", cbuff_uint8_count(&prefilledBuff) == (i + 1));
     }
@@ -80,7 +88,7 @@ char *cbuff_uint8_test_general(void)
     {
         uint8_t d = -1;
         mu_assert("", cbuff_uint8_dequeue(&prefilledBuff, &d));
-        mu_assert("", d == i);
+        mu_assert("", d == i + 1);
     }
     return 0;
 }
@@ -91,14 +99,17 @@ char *cbuff_uint8_test_overwrite(void)
     cbuff_uint8_t prefilledBuff = cbuff_uint8_struct_prefill(cbuffer);
     for (int i = 0; i < BUFF_TEST_SIZE; i++)
     {
+        //circularBuffer_inspect(&prefilledBuff, "WWW");
         cbuff_uint8_enqueue(&prefilledBuff, i);
     }
     for (int i = 0; i < BUFF_TEST_SIZE; i++)
     {
+        //circularBuffer_inspect(&prefilledBuff, "OOO");
         cbuff_uint8_enqueue_overwrite(&prefilledBuff, i + 1);
     }
     for (int i = 0; i < BUFF_TEST_SIZE; i++)
     {
+        //circularBuffer_inspect(&prefilledBuff, "DDD");
         uint8_t d = -1;
         mu_assert("", cbuff_uint8_dequeue(&prefilledBuff, &d));
         mu_assert("", d == i + 1);
@@ -135,6 +146,6 @@ static char *all_tests()
 int main(void)
 {
     char *result = all_tests();
-    printf("%s\n", (result) ? result : "ALL TESTS PASSED\n");
+    printf("\n%s\n", (result) ? result : "ALL TESTS PASSED\n");
     return result != 0;
 }

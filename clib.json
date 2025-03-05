@@ -1,9 +1,9 @@
 {
   "name": "cbuff",
-  "version": "0.0.2",
+  "version": "0.1.1",
   "repo": "mofosyne/cbuff.h",
   "description": "Malloc free, minimum overhead implementation of a circular buffer.",
   "keywords": ["malloc free", "circular buffer"],
   "license": "MIT",
-  "src": ["cbuff_uint8_index.h", "cbuff_uint8_pointer.h"]
+  "src": ["cbuff_uint8.h"]
 }

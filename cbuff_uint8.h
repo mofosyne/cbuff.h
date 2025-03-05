@@ -6,7 +6,7 @@
     Static inlined handlers for speed and ease of usage in various projects.
     Index based implementation diverges from harshkn's version, since it is
     easier for me to grok. However may come at cost of speed and optimisation.
-    Also uses byte based rather than item based for easier understability
+    Also uses byte based rather than item based for easier understandability
     when used for simpler byte array circular buffers.
 
     Based on harshkn's circular buffer: https://gist.github.com/harshkn/909546
@@ -40,17 +40,44 @@
 #include <stddef.h>  // size_t
 #include <stdint.h>  // uint8_t
 
+/*
+ * # Circular Buffer In Memory Representation
+ *
+ *   0                                      X Capacity
+ *  [ ][ ][ ][ ][ ][D][C][B][A][ ][ ][ ][ ][ ]
+ *                  |--->>---|
+ *                 HEAD     TAIL
+ *                INPUT     OUTPUT
+ *
+ * # Lock Free Approach (No Mutex Thread Safety)
+ * 
+ * The issue with wrapping the index by X for empty/full detection
+ * is that you would need to leave one slot free to disambiguate
+ * between the full and empty state.
+ *
+ *   We can solve this issue by projecting the index beyond X as shown:
+ *
+ *   0                             X :X+0                           2*X
+ *  [B][A][ ][ ][ ][ ][ ][ ][ ][ ][ ]:[ ][ ][ ][ ][ ][ ][ ][ ][ ][D][C]
+ *  >---|                            :                            |--->
+ *      TAIL                         :MIRRORED                    HEAD
+ *      OUTPUT                       :INDEX                       INPUT
+ *
+ */
+
 // Prefill Circular Buffer (Allows for skipping `cbuff_uint8_init()`)
-#define cbuff_uint8_struct_full_prefill(BuffSize, BuffPtr) {.capacity = BuffSize, .count = 0, .buffer = BuffPtr, .head = 0, .tail = 0}
+#define cbuff_uint8_struct_full_prefill(BuffSize, BuffPtr)                                                                                                                                             \
+    {                                                                                                                                                                                                  \
+        .capacity = BuffSize, .buffer = BuffPtr, .head = 0, .tail = 0                                                                                                                      \
+    }
 #define cbuff_uint8_struct_prefill(Buff) cbuff_uint8_struct_full_prefill((sizeof(Buff) / sizeof(Buff[0])), &Buff[0])
 
 typedef struct cbuff_uint8_t
 {
-    size_t capacity; ///< Maximum number of items in the buffer
-    size_t count;    ///< Number of items in the buffer
-    uint8_t *buffer; ///< Data Buffer
-    size_t head;     ///< Head Index
-    size_t tail;     ///< Tail Index
+    size_t capacity;      ///< Maximum number of items in the buffer
+    uint8_t *buffer;      ///< Data Buffer
+    volatile size_t head; ///< Head Index (input)
+    volatile size_t tail; ///< Tail Index (output)
 } cbuff_uint8_t;
 
 /*******************************************************************************
@@ -68,7 +95,6 @@ static inline bool cbuff_uint8_init(cbuff_uint8_t *cb, size_t capacity, uint8_t 
     *cb = emptyCB;
     cb->capacity = capacity;
     cb->buffer = buffPtr;
-    cb->count = 0;
     cb->head = 0;
     cb->tail = 0;
     return true; ///< Successful
@@ -78,7 +104,6 @@ static inline bool cbuff_uint8_is_init(cbuff_uint8_t *cb) { return cb->capacity 
 
 static inline bool cbuff_uint8_reset(cbuff_uint8_t *cb)
 {
-    cb->count = 0;
     cb->head = 0;
     cb->tail = 0;
     return true; ///< Successful
@@ -90,50 +115,55 @@ static inline bool cbuff_uint8_reset(cbuff_uint8_t *cb)
 
 static inline bool cbuff_uint8_enqueue_overwrite(cbuff_uint8_t *cb, const uint8_t b)
 {
-    if (cb->count >= cb->capacity)
+    // Snapshot of volatile value to enforce atomicity
+    const size_t head_index = cb->head;
+    const size_t tail_index = cb->tail;
+    const size_t count = (tail_index >= head_index) ? (tail_index - head_index) : (tail_index + (cb->capacity * 2 - head_index));
+    // Check if buffer is full
+    if (count >= cb->capacity)
     {
-        // Full. Increment head
-        cb->head = (cb->head + 1) % cb->capacity;
-    }
-    else
-    {
-        // Not Full. Update Counter
-        cb->count = cb->count + 1;
+        // Discard head value
+        cb->head = (head_index + 1) % (cb->capacity * 2);
     }
     // Push value
-    cb->buffer[cb->tail] = b;
+    cb->buffer[tail_index % cb->capacity] = b;
     // Increment tail
-    cb->tail = (cb->tail + 1) % cb->capacity;
+    cb->tail = (tail_index + 1) % (cb->capacity * 2);
     return true; ///< Successful
 }
 
 static inline bool cbuff_uint8_enqueue(cbuff_uint8_t *cb, const uint8_t b)
 {
-    // Full
-    if (cb->count >= cb->capacity)
+    // Snapshot of volatile value to enforce atomicity
+    const size_t head_index = cb->head;
+    const size_t tail_index = cb->tail;
+    const size_t count = (tail_index >= head_index) ? (tail_index - head_index) : (tail_index + (cb->capacity * 2 - head_index));
+    // Check if buffer is full
+    if (count >= cb->capacity)
     {
         return false; ///< Failed
     }
     // Push value
-    cb->buffer[cb->tail] = b;
+    cb->buffer[tail_index % cb->capacity] = b;
     // Increment tail
-    cb->tail = (cb->tail + 1) % cb->capacity;
-    cb->count = cb->count + 1;
+    cb->tail = (tail_index + 1) % (cb->capacity * 2);
     return true; ///< Successful
 }
 
 static inline bool cbuff_uint8_dequeue(cbuff_uint8_t *cb, uint8_t *b)
 {
-    // Empty
-    if (cb->count == 0)
+    // Snapshot of volatile value to enforce atomicity
+    const size_t head_index = cb->head;
+    const size_t tail_index = cb->tail;
+    // Check if buffer is empty
+    if (tail_index == head_index)
     {
         return false; ///< Failed
     }
     // Pop value
-    *b = cb->buffer[cb->head];
+    *b = cb->buffer[head_index % cb->capacity];
     // Increment head
-    cb->head = (cb->head + 1) % cb->capacity;
-    cb->count = cb->count - 1;
+    cb->head = (head_index + 1) % (cb->capacity * 2);
     return true; ///< Successful
 }
 
@@ -143,16 +173,22 @@ static inline bool cbuff_uint8_dequeue(cbuff_uint8_t *cb, uint8_t *b)
 
 static inline bool cbuff_uint8_peek(cbuff_uint8_t *cb, uint8_t *b, const size_t offset)
 {
-    // Empty?
-    if (cb->count == 0)
+    // Snapshot of volatile value to enforce atomicity
+    const size_t head_index = cb->head;
+    const size_t tail_index = cb->tail;
+    // Check if empty
+    if (tail_index == head_index)
     {
         return false; ///< Failed
     }
-    if (cb->count < offset)
+    // Check if offset is within bound of the current buffer count usage
+    const size_t count = (tail_index >= head_index) ? (tail_index - head_index) : (tail_index + (cb->capacity * 2 - head_index));
+    if (count < offset)
     {
         return false; ///< Failed
     }
-    *b = cb->buffer[(cb->head + offset) % cb->capacity];
+    // Peek Value
+    *b = cb->buffer[(head_index + offset) % cb->capacity];
     return true; ///< Successful
 }
 
@@ -162,10 +198,22 @@ static inline bool cbuff_uint8_peek(cbuff_uint8_t *cb, uint8_t *b, const size_t 
 
 static inline size_t cbuff_uint8_capacity(cbuff_uint8_t *cb) { return cb->capacity; }
 
-static inline size_t cbuff_uint8_count(cbuff_uint8_t *cb) { return cb->count; }
+static inline size_t cbuff_uint8_count(cbuff_uint8_t *cb)
+{
+    const size_t head_index = cb->head;
+    const size_t tail_index = cb->tail;
+    const size_t count = (tail_index >= head_index) ? (tail_index - head_index) : (tail_index + (cb->capacity * 2 - head_index));
+    return count; 
+}
 
-static inline bool cbuff_uint8_is_full(cbuff_uint8_t *cb) { return (cb->count >= cb->capacity); }
+static inline size_t cbuff_uint8_is_full(cbuff_uint8_t *cb)
+{
+    const size_t head_index = cb->head;
+    const size_t tail_index = cb->tail;
+    const size_t count = (tail_index >= head_index) ? (tail_index - head_index) : (tail_index + (cb->capacity * 2 - head_index));
+    return count >= cb->capacity; 
+}
 
-static inline bool cbuff_uint8_is_empty(cbuff_uint8_t *cb) { return (cb->count == 0); }
+static inline bool cbuff_uint8_is_empty(cbuff_uint8_t *cb) { return cb->tail == cb->head; }
 
 #endif
