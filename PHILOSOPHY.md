@@ -48,13 +48,18 @@ implementation difference, violating the "do one thing well" principle.
 
 ## Code generation over C macro metaprogramming
 
-Type variants (`uint8`, `uint16`, `uint32`) are produced by a code generator,
+Type variants (`uint8`, `uint16`, `uint32`, `uint64`) are produced by a code generator,
 not by `#define` tricks. Generated files are committed to the repository so
 users can grab a single header without running any tooling.
 
 C macros that generate entire APIs are notoriously difficult to read, debug,
 and maintain. A generated `.h` file is just C — readable, greppable, and
 understandable without macro expansion.
+
+The macro-template tradeoff (e.g. `CBUFF_DEFINE(my_type)`) only makes sense
+when the type list is open-ended and user-defined. Here the type set is closed:
+`uint8/16/32/64` covers every standard fixed-width integer in C. There is no
+open-ended case to handle, so macros add complexity with no benefit.
 
 ## Lock-free by design
 

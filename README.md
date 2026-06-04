@@ -130,11 +130,29 @@ How this helps with determining full/empty state is that the TAIL index and the 
 
 ## Other Circular Buffer Implementations To Consider
 
+This library targets bare-metal embedded with fixed integer types and zero overhead.
+If your needs differ, one of these may be a better fit:
+
+**Need generic struct/arbitrary element support (void\* + memcpy)?**
+* [lwrb — Lightweight Ring Buffer](https://github.com/MaJerle/lwrb) — malloc-free,
+  void-based, DMA-friendly, single-producer/single-consumer. Well-maintained and
+  widely used in embedded projects.
+
+**Need multi-producer/multi-consumer or RTOS integration?**
+* FreeRTOS Queues — thread-safe, ISR-safe, supports blocking, works across tasks.
+  The right choice if you are already running an RTOS.
+* CMSIS-RTOS2 Message Queue — same idea, vendor-neutral RTOS abstraction for ARM.
+
+**Using C++ or Arduino?**
+* [CircularBuffer by rlogiacco](https://github.com/rlogiacco/CircularBuffer) —
+  C++ template-based, Arduino-friendly, type-safe without macros.
+
+**Reference / prior art:**
 * [god233012yamil/Circular-Buffer](https://github.com/god233012yamil/Circular-Buffer)
-    - Appreciated god233012yamil's [Technical Writeup](https://github.com/god233012yamil/Circular-Buffer/blob/main/technical-docs.md)
-      since I learned more about consideration needed to add lock-free thread safety.
-    - Ultimately opted against this approach as it relies on a slot that must always remain empty 
-      to ensure clear disambiguation between empty and full buffer state (one slot empty).
+    — good [technical writeup](https://github.com/god233012yamil/Circular-Buffer/blob/main/technical-docs.md)
+    on lock-free thread safety considerations. Uses a sentinel slot (one slot always
+    empty) to disambiguate full vs empty — a different tradeoff to the virtual-index
+    approach used here.
 
 
 ## Recommended Readings
