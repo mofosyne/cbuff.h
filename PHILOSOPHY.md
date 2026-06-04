@@ -84,3 +84,29 @@ for multi-core — use `_Atomic` (C11) or explicit platform memory barriers ther
 
 If you need struct queues, dynamic sizing, or multi-producer safety, there are
 better-suited libraries available.
+
+## Index approach over pointer approach
+
+The implementation uses integer indices for head/tail rather than pointers.
+Compared against a pointer-based approach on Compiler Explorer, the index
+approach produces fewer instructions — likely because pointer arithmetic
+requires copying the base address into a register whereas index arithmetic
+works directly with offsets.
+
+The original comparison was made in these gists:
+- [Pointer approach](https://gist.github.com/mofosyne/d7a4a8d6a567133561c18aaddfd82e6f)
+- [Index approach](https://gist.github.com/mofosyne/82020d5c0e1e11af0eb9b05c73734956)
+
+## Recommended readings
+
+These informed the lock-free design:
+
+- https://www.codeproject.com/articles/43510/lock-free-single-producer-single-consumer-circular
+- https://andrea.lattuada.me/blog/2019/the-design-and-implementation-of-a-lock-free-ring-buffer-with-contiguous-reservations.html
+
+## History
+
+This library originated as a pair of GitHub Gists exploring pointer-based vs
+index-based circular buffer implementations, then evolved into a clib-packaged
+header-only library with the lock-free virtual-index approach, type variants
+via code generation, and hardened test coverage.
