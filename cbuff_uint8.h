@@ -183,7 +183,7 @@ static inline bool cbuff_uint8_peek(cbuff_uint8_t *cb, uint8_t *b, const size_t 
     }
     // Check if offset is within bound of the current buffer count usage
     const size_t count = (tail_index >= head_index) ? (tail_index - head_index) : (tail_index + (cb->capacity * 2 - head_index));
-    if (count < offset)
+    if (count <= offset)
     {
         return false; ///< Failed
     }
@@ -206,7 +206,7 @@ static inline size_t cbuff_uint8_count(cbuff_uint8_t *cb)
     return count; 
 }
 
-static inline size_t cbuff_uint8_is_full(cbuff_uint8_t *cb)
+static inline bool cbuff_uint8_is_full(cbuff_uint8_t *cb)
 {
     const size_t head_index = cb->head;
     const size_t tail_index = cb->tail;

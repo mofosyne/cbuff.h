@@ -131,6 +131,31 @@ char *cbuff_uint8_test_peek(void)
         mu_assert("", cbuff_uint8_peek(&prefilledBuff, &d, i));
         mu_assert("", d == i + 2);
     }
+    // offset == count and offset > count must fail
+    uint8_t d = -1;
+    mu_assert("peek at count should fail", !cbuff_uint8_peek(&prefilledBuff, &d, 3));
+    mu_assert("peek beyond count should fail", !cbuff_uint8_peek(&prefilledBuff, &d, 10));
+    return 0;
+}
+
+char *cbuff_uint8_test_edge_cases(void)
+{
+    uint8_t cbuffer[4] = {0};
+    cbuff_uint8_t prefilledBuff = cbuff_uint8_struct_prefill(cbuffer);
+
+    // dequeue on empty must fail
+    uint8_t d = -1;
+    mu_assert("dequeue empty should fail", !cbuff_uint8_dequeue(&prefilledBuff, &d));
+
+    // wrap-around: cycle indices well past 2*capacity
+    for (int i = 0; i < 20; i++)
+    {
+        mu_assert("enqueue should succeed", cbuff_uint8_enqueue(&prefilledBuff, (uint8_t)(i + 1)));
+        mu_assert("dequeue should succeed", cbuff_uint8_dequeue(&prefilledBuff, &d));
+        mu_assert("value mismatch after wrap", d == (uint8_t)(i + 1));
+    }
+    mu_assert("should be empty after wrap cycling", cbuff_uint8_is_empty(&prefilledBuff));
+    mu_assert("count should be 0 after wrap cycling", cbuff_uint8_count(&prefilledBuff) == 0);
     return 0;
 }
 
@@ -140,6 +165,7 @@ static char *all_tests()
     mu_run_test(cbuff_uint8_test_general);
     mu_run_test(cbuff_uint8_test_overwrite);
     mu_run_test(cbuff_uint8_test_peek);
+    mu_run_test(cbuff_uint8_test_edge_cases);
     return 0;
 }
 
