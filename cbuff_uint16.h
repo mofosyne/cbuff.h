@@ -1,19 +1,15 @@
 /* Generated from cbuff_uint8.h by generate.sh -- do not edit directly */
 /*
-    Circular Buffer For Embedded Applications (Index Based)
+    Circular Buffer For Embedded Applications
     Author: Brian Khuu (2025)
 
-    Reason: Malloc free, minimum overhead implementation of a circular buffer.
-    Static inlined handlers for speed and ease of usage in various projects.
-    Index based implementation diverges from harshkn's version, since it is
-    easier for me to grok. However may come at cost of speed and optimisation.
+    Malloc-free, lock-free single-producer/single-consumer circular buffer.
+    Uses index-based head/tail and a virtual index range (0..2*capacity) to
+    avoid the sentinel slot. See DESIGN.md for the technical rationale.
 
-    Thread safety: head and tail are declared volatile, which is correct for
-    single-core embedded use (e.g. one ISR writing, main loop reading). This
-    is NOT sufficient for multi-core; use _Atomic or platform memory barriers
-    in that case. See PHILOSOPHY.md for the full rationale.
-
-    Based on harshkn's circular buffer: https://gist.github.com/harshkn/909546
+    Thread safety: head and tail are volatile — correct for single-core
+    embedded use (one ISR writing, main loop reading). NOT sufficient for
+    multi-core; use _Atomic or platform memory barriers there.
 
     # MIT License
 
