@@ -53,3 +53,6 @@ dkms.conf
 
 .vscode/
 cbuff_uint8_test
+cbuff_uint16_test
+cbuff_uint32_test
+cbuff_uint64_test

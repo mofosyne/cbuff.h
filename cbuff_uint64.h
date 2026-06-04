@@ -1,3 +1,4 @@
+/* Generated from cbuff_uint8.h by generate.sh -- do not edit directly */
 /*
     Circular Buffer For Embedded Applications
     Author: Brian Khuu (2025)
@@ -32,12 +33,12 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
  */
-#ifndef CBUFF_UINT8_H
-#define CBUFF_UINT8_H
+#ifndef CBUFF_UINT64_H
+#define CBUFF_UINT64_H
 
 #include <stdbool.h> // bool
 #include <stddef.h>  // size_t
-#include <stdint.h>  // uint8_t
+#include <stdint.h>  // uint64_t
 
 /*
  * # Circular Buffer In Memory Representation
@@ -64,28 +65,28 @@
  *
  */
 
-// Prefill Circular Buffer (Allows for skipping `cbuff_uint8_init()`)
-#define cbuff_uint8_struct_full_prefill(BuffSize, BuffPtr)                                                                                                                                             \
+// Prefill Circular Buffer (Allows for skipping `cbuff_uint64_init()`)
+#define cbuff_uint64_struct_full_prefill(BuffSize, BuffPtr)                                                                                                                                             \
     {                                                                                                                                                                                                  \
         .capacity = BuffSize, .buffer = BuffPtr, .head = 0, .tail = 0                                                                                                                      \
     }
-#define cbuff_uint8_struct_prefill(Buff) cbuff_uint8_struct_full_prefill((sizeof(Buff) / sizeof(Buff[0])), &Buff[0])
+#define cbuff_uint64_struct_prefill(Buff) cbuff_uint64_struct_full_prefill((sizeof(Buff) / sizeof(Buff[0])), &Buff[0])
 
-typedef struct cbuff_uint8_t
+typedef struct cbuff_uint64_t
 {
     size_t capacity;      ///< Maximum number of items in the buffer
-    uint8_t *buffer;      ///< Data Buffer
+    uint64_t *buffer;      ///< Data Buffer
     volatile size_t head; ///< Head Index (input)
     volatile size_t tail; ///< Tail Index (output)
-} cbuff_uint8_t;
+} cbuff_uint64_t;
 
 /*******************************************************************************
  * Init/IsInit/Reset
  *******************************************************************************/
 
-static inline bool cbuff_uint8_init(cbuff_uint8_t *cb, size_t capacity, uint8_t *buffPtr)
+static inline bool cbuff_uint64_init(cbuff_uint64_t *cb, size_t capacity, uint64_t *buffPtr)
 {
-    cbuff_uint8_t emptyCB = {0};
+    cbuff_uint64_t emptyCB = {0};
     if ((cb == NULL) || (buffPtr == NULL))
     {
         return false; ///< Failed
@@ -99,9 +100,9 @@ static inline bool cbuff_uint8_init(cbuff_uint8_t *cb, size_t capacity, uint8_t 
     return true; ///< Successful
 }
 
-static inline bool cbuff_uint8_is_init(cbuff_uint8_t *cb) { return cb->capacity && cb->buffer; }
+static inline bool cbuff_uint64_is_init(cbuff_uint64_t *cb) { return cb->capacity && cb->buffer; }
 
-static inline bool cbuff_uint8_reset(cbuff_uint8_t *cb)
+static inline bool cbuff_uint64_reset(cbuff_uint64_t *cb)
 {
     cb->head = 0;
     cb->tail = 0;
@@ -112,7 +113,7 @@ static inline bool cbuff_uint8_reset(cbuff_uint8_t *cb)
  * Circular buffer Enqueue/Dequeue (This will modify the buffer)
  *******************************************************************************/
 
-static inline bool cbuff_uint8_enqueue_overwrite(cbuff_uint8_t *cb, const uint8_t b)
+static inline bool cbuff_uint64_enqueue_overwrite(cbuff_uint64_t *cb, const uint64_t b)
 {
     // Snapshot of volatile value to enforce atomicity
     const size_t head_index = cb->head;
@@ -131,7 +132,7 @@ static inline bool cbuff_uint8_enqueue_overwrite(cbuff_uint8_t *cb, const uint8_
     return true; ///< Successful
 }
 
-static inline bool cbuff_uint8_enqueue(cbuff_uint8_t *cb, const uint8_t b)
+static inline bool cbuff_uint64_enqueue(cbuff_uint64_t *cb, const uint64_t b)
 {
     // Snapshot of volatile value to enforce atomicity
     const size_t head_index = cb->head;
@@ -149,7 +150,7 @@ static inline bool cbuff_uint8_enqueue(cbuff_uint8_t *cb, const uint8_t b)
     return true; ///< Successful
 }
 
-static inline bool cbuff_uint8_dequeue(cbuff_uint8_t *cb, uint8_t *b)
+static inline bool cbuff_uint64_dequeue(cbuff_uint64_t *cb, uint64_t *b)
 {
     // Snapshot of volatile value to enforce atomicity
     const size_t head_index = cb->head;
@@ -170,7 +171,7 @@ static inline bool cbuff_uint8_dequeue(cbuff_uint8_t *cb, uint8_t *b)
  * Circular buffer Peek (Will Not Modify Buffer)
  *******************************************************************************/
 
-static inline bool cbuff_uint8_peek(cbuff_uint8_t *cb, uint8_t *b, const size_t offset)
+static inline bool cbuff_uint64_peek(cbuff_uint64_t *cb, uint64_t *b, const size_t offset)
 {
     // Snapshot of volatile value to enforce atomicity
     const size_t head_index = cb->head;
@@ -195,9 +196,9 @@ static inline bool cbuff_uint8_peek(cbuff_uint8_t *cb, uint8_t *b, const size_t 
  * Circular buffer utility functions (Will Not Modify Buffer)
  *******************************************************************************/
 
-static inline size_t cbuff_uint8_capacity(cbuff_uint8_t *cb) { return cb->capacity; }
+static inline size_t cbuff_uint64_capacity(cbuff_uint64_t *cb) { return cb->capacity; }
 
-static inline size_t cbuff_uint8_count(cbuff_uint8_t *cb)
+static inline size_t cbuff_uint64_count(cbuff_uint64_t *cb)
 {
     const size_t head_index = cb->head;
     const size_t tail_index = cb->tail;
@@ -205,7 +206,7 @@ static inline size_t cbuff_uint8_count(cbuff_uint8_t *cb)
     return count; 
 }
 
-static inline bool cbuff_uint8_is_full(cbuff_uint8_t *cb)
+static inline bool cbuff_uint64_is_full(cbuff_uint64_t *cb)
 {
     const size_t head_index = cb->head;
     const size_t tail_index = cb->tail;
@@ -213,6 +214,6 @@ static inline bool cbuff_uint8_is_full(cbuff_uint8_t *cb)
     return count >= cb->capacity; 
 }
 
-static inline bool cbuff_uint8_is_empty(cbuff_uint8_t *cb) { return cb->tail == cb->head; }
+static inline bool cbuff_uint64_is_empty(cbuff_uint64_t *cb) { return cb->tail == cb->head; }
 
 #endif
