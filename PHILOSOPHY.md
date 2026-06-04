@@ -57,9 +57,9 @@ and maintain. A generated `.h` file is just C — readable, greppable, and
 understandable without macro expansion.
 
 The macro-template tradeoff (e.g. `CBUFF_DEFINE(my_type)`) only makes sense
-when the type list is open-ended and user-defined. Here the type set is closed:
-`uint8/16/32/64` covers every standard fixed-width integer in C. There is no
-open-ended case to handle, so macros add complexity with no benefit.
+when the type list is open-ended and user-defined. For the fixed-width integer
+variants (`uint8/16/32/64`), the type set is closed and macros add complexity
+with no benefit. New type variants follow the same code-generation pattern.
 
 ## Lock-free by design
 
@@ -79,14 +79,11 @@ for multi-core — use `_Atomic` (C11) or explicit platform memory barriers ther
 See [`HISTORY.md`](HISTORY.md#lock-free-redesign-virtual-index-approach) for the
 background and references that led to this design.
 
-## What this library is not
+## Out of scope
 
-- A general-purpose queue for application code on a full OS
-- A replacement for FreeRTOS queues, CMSIS-RTOS, or similar RTOS primitives
-- A library that tries to cover every possible type or use case
-
-If you need struct queues, dynamic sizing, or multi-producer safety, there are
-better-suited libraries available.
+- Dynamic memory allocation — all buffers are statically declared
+- Multi-producer or multi-consumer safety without external synchronisation
+- Replacing an RTOS queue when blocking, priorities, or task notification are needed
 
 ## Index approach over pointer approach
 
