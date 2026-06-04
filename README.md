@@ -13,6 +13,11 @@ This is based on harshkn's circular buffer: https://gist.github.com/harshkn/9095
 
 ## Code Size Statistics
 
+> Measured on x86-64 with GCC (`-fno-inline -ffunction-sections`). Absolute sizes differ
+> on ARM Cortex-M but the relative pattern (especially `-O0` vs `-Os`) holds.
+> `—` means the function was inlined away entirely by the compiler at `-Os`.
+> Regenerate with `make stats`.
+
 <statsTable>
 
 ### `cbuff_uint8.h`
