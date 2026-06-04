@@ -66,6 +66,11 @@ a mutex would be too costly or unavailable.
 This is a deliberate tradeoff: the design is correct for SPSC only. Multi-producer
 or multi-consumer use cases require additional synchronisation outside this library.
 
+`volatile` on `head` and `tail` is sufficient for single-core embedded use (one ISR
+writing, one reader in the main loop) because there is no cache coherency issue and
+the compiler is prevented from caching the values in registers. It is NOT sufficient
+for multi-core — use `_Atomic` (C11) or explicit platform memory barriers there.
+
 ## What this library is not
 
 - A general-purpose queue for application code on a full OS

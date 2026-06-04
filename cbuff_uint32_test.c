@@ -10,7 +10,7 @@
 
 void circularBuffer_inspect(cbuff_uint32_t *cb, char *msg)
 {
-    printf("\n%s : H=%ld T=%ld", msg, cb->head, cb->tail);
+    printf("\n%s : H=%zu T=%zu", msg, cb->head, cb->tail);
     printf("\n%s : ", msg);
     for (int i = 0; i < cb->capacity; i++)
     {
@@ -100,17 +100,14 @@ char *cbuff_uint32_test_overwrite(void)
     cbuff_uint32_t prefilledBuff = cbuff_uint32_struct_prefill(cbuffer);
     for (int i = 0; i < BUFF_TEST_SIZE; i++)
     {
-        //circularBuffer_inspect(&prefilledBuff, "WWW");
         cbuff_uint32_enqueue(&prefilledBuff, i);
     }
     for (int i = 0; i < BUFF_TEST_SIZE; i++)
     {
-        //circularBuffer_inspect(&prefilledBuff, "OOO");
         cbuff_uint32_enqueue_overwrite(&prefilledBuff, i + 1);
     }
     for (int i = 0; i < BUFF_TEST_SIZE; i++)
     {
-        //circularBuffer_inspect(&prefilledBuff, "DDD");
         uint32_t d = -1;
         mu_assert("", cbuff_uint32_dequeue(&prefilledBuff, &d));
         mu_assert("", d == i + 1);
