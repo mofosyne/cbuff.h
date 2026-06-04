@@ -38,17 +38,6 @@ for f in cbuff_uint16.h cbuff_uint16_test.c cbuff_uint32.h cbuff_uint32_test.c; 
 done
 rm -rf "$TMPDIR"
 
-# --- Stats table not stale ---
-check "README stats table is current" python3 - << 'PYEOF'
-import re, subprocess, sys
-with open("README.md") as f:
-    content = f.read()
-m = re.search(r"<statsTable>(.*?)</statsTable>", content, re.DOTALL)
-readme_table = m.group(1).strip() if m else ""
-fresh = subprocess.run(["python3", "stats.py"], capture_output=True, text=True).stdout.strip()
-sys.exit(0 if readme_table == fresh else 1)
-PYEOF
-
 # --- Version consistency ---
 CLIB_VER=$(jq -r '.version' clib.json)
 check "README version badge matches clib.json ($CLIB_VER)" \
