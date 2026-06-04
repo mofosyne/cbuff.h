@@ -11,6 +11,69 @@ Static inlined handlers for speed and ease of usage in various projects.
 
 This is based on harshkn's circular buffer: https://gist.github.com/harshkn/909546
 
+## Code Size Statistics
+
+<statsTable>
+
+### `cbuff_uint8.h`
+
+Instance size (RAM): **32 bytes**
+
+| Function | `-O0` bytes | `-Os` bytes |
+|---|---:|---:|
+| `capacity` | 17 | — |
+| `count` | 86 | 30 |
+| `dequeue` | 143 | 57 |
+| `enqueue` | 193 | 81 |
+| `enqueue_overwrite` | 224 | 96 |
+| `init` | 177 | 33 |
+| `is_empty` | 32 | 15 |
+| `is_full` | 96 | 38 |
+| `is_init` | 50 | — |
+| `peek` | 185 | 74 |
+| `reset` | 39 | 13 |
+| **total** | **1242** | **437** |
+
+### `cbuff_uint16.h`
+
+Instance size (RAM): **32 bytes**
+
+| Function | `-O0` bytes | `-Os` bytes |
+|---|---:|---:|
+| `capacity` | 17 | — |
+| `count` | 86 | 30 |
+| `dequeue` | 147 | 56 |
+| `enqueue` | 198 | 81 |
+| `enqueue_overwrite` | 229 | 90 |
+| `init` | 177 | 33 |
+| `is_empty` | 32 | 15 |
+| `is_full` | 96 | 38 |
+| `is_init` | 50 | — |
+| `peek` | 192 | 76 |
+| `reset` | 39 | 13 |
+| **total** | **1263** | **432** |
+
+### `cbuff_uint32.h`
+
+Instance size (RAM): **32 bytes**
+
+| Function | `-O0` bytes | `-Os` bytes |
+|---|---:|---:|
+| `capacity` | 17 | — |
+| `count` | 86 | 30 |
+| `dequeue` | 146 | 54 |
+| `enqueue` | 194 | 80 |
+| `enqueue_overwrite` | 225 | 89 |
+| `init` | 177 | 33 |
+| `is_empty` | 32 | 15 |
+| `is_full` | 96 | 38 |
+| `is_init` | 50 | — |
+| `peek` | 191 | 74 |
+| `reset` | 39 | 13 |
+| **total** | **1253** | **426** |
+
+</statsTable>
+
 ## Design Considerations Applied
 
 * Favor index approach over pointer approach

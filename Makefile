@@ -15,6 +15,10 @@ all: test
 .PHONY: test
 test: cbuff_uint8_test cbuff_uint16_test cbuff_uint32_test
 
+.PHONY: stats
+stats:
+	python3 stats.py --readme
+
 .PHONY: generate
 generate:
 	sh generate.sh
