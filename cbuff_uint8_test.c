@@ -18,7 +18,7 @@ void circularBuffer_inspect(cbuff_uint8_t *cb, char *msg)
     printf("\n%s : ", msg);
     for (int i = 0; i < cb->capacity; i++)
     {
-        printf(" %d", cb->buffer[i]);
+        printf(" %llu", (unsigned long long)cb->buffer[i]);
     }
     printf("\n");
 }

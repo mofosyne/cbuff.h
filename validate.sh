@@ -27,13 +27,14 @@ make test >/dev/null 2>&1 || true   # ensure binaries exist
 check "cbuff_uint8 tests pass"  sh -c './cbuff_uint8_test  2>&1 | grep -q "ALL TESTS PASSED"'
 check "cbuff_uint16 tests pass" sh -c './cbuff_uint16_test 2>&1 | grep -q "ALL TESTS PASSED"'
 check "cbuff_uint32 tests pass" sh -c './cbuff_uint32_test 2>&1 | grep -q "ALL TESTS PASSED"'
+check "cbuff_uint64 tests pass" sh -c './cbuff_uint64_test 2>&1 | grep -q "ALL TESTS PASSED"'
 
 # --- Generated files in sync with template ---
 TMPDIR=$(mktemp -d)
 cp cbuff_uint8.h cbuff_uint8_test.c generate.sh "$TMPDIR/"
 (cd "$TMPDIR" && sh generate.sh >/dev/null 2>&1)
 
-for f in cbuff_uint16.h cbuff_uint16_test.c cbuff_uint32.h cbuff_uint32_test.c; do
+for f in cbuff_uint16.h cbuff_uint16_test.c cbuff_uint32.h cbuff_uint32_test.c cbuff_uint64.h cbuff_uint64_test.c; do
     check "$f in sync with template" diff "$f" "$TMPDIR/$f"
 done
 rm -rf "$TMPDIR"
@@ -46,6 +47,7 @@ check "README version badge matches clib.json ($CLIB_VER)" \
 # --- clib.json src lists generated headers ---
 check "clib.json includes cbuff_uint16.h" jq -e '.src | contains(["cbuff_uint16.h"])' clib.json
 check "clib.json includes cbuff_uint32.h" jq -e '.src | contains(["cbuff_uint32.h"])' clib.json
+check "clib.json includes cbuff_uint64.h" jq -e '.src | contains(["cbuff_uint64.h"])' clib.json
 
 echo ""
 if [ $status -eq 0 ]; then

@@ -27,3 +27,4 @@ generate() {
 
 generate uint16_t uint16
 generate uint32_t uint32
+generate uint64_t uint64
