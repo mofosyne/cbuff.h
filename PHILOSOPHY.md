@@ -76,6 +76,9 @@ writing, one reader in the main loop) because there is no cache coherency issue 
 the compiler is prevented from caching the values in registers. It is NOT sufficient
 for multi-core — use `_Atomic` (C11) or explicit platform memory barriers there.
 
+See [`HISTORY.md`](HISTORY.md#lock-free-redesign-virtual-index-approach) for the
+background and references that led to this design.
+
 ## What this library is not
 
 - A general-purpose queue for application code on a full OS
@@ -88,14 +91,12 @@ better-suited libraries available.
 ## Index approach over pointer approach
 
 The implementation uses integer indices for head/tail rather than pointers.
-Compared against a pointer-based approach on Compiler Explorer, the index
-approach produces fewer instructions — likely because pointer arithmetic
-requires copying the base address into a register whereas index arithmetic
-works directly with offsets.
+Index arithmetic works directly with offsets from a known base; pointer arithmetic
+requires copying the base address into a register first. On a constrained target
+this makes a measurable difference.
 
-The original comparison was made in these gists:
-- [Pointer approach](https://gist.github.com/mofosyne/d7a4a8d6a567133561c18aaddfd82e6f)
-- [Index approach](https://gist.github.com/mofosyne/82020d5c0e1e11af0eb9b05c73734956)
+See [`HISTORY.md`](HISTORY.md#switch-to-index-based-approach) for the Compiler
+Explorer comparison that motivated this choice.
 
 ## Recommended readings
 
@@ -106,7 +107,5 @@ These informed the lock-free design:
 
 ## History
 
-This library originated as a pair of GitHub Gists exploring pointer-based vs
-index-based circular buffer implementations, then evolved into a clib-packaged
-header-only library with the lock-free virtual-index approach, type variants
-via code generation, and hardened test coverage.
+See [`HISTORY.md`](HISTORY.md) for the full record of decisions and experiments
+that shaped this library.
