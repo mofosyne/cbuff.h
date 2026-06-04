@@ -76,8 +76,9 @@ writing, one reader in the main loop) because there is no cache coherency issue 
 the compiler is prevented from caching the values in registers. It is NOT sufficient
 for multi-core — use `_Atomic` (C11) or explicit platform memory barriers there.
 
-See [`HISTORY.md`](HISTORY.md#lock-free-redesign-virtual-index-approach) for the
-background and references that led to this design.
+See [`DESIGN.md`](DESIGN.md#virtual-index-approach-for-lock-free-fullempty-detection)
+for the full technical explanation, and [`HISTORY.md`](HISTORY.md#lock-free-redesign-virtual-index-approach)
+for the background.
 
 ## Out of scope
 
@@ -92,15 +93,9 @@ Index arithmetic works directly with offsets from a known base; pointer arithmet
 requires copying the base address into a register first. On a constrained target
 this makes a measurable difference.
 
-See [`HISTORY.md`](HISTORY.md#switch-to-index-based-approach) for the Compiler
-Explorer comparison that motivated this choice.
-
-## Recommended readings
-
-These informed the lock-free design:
-
-- https://www.codeproject.com/articles/43510/lock-free-single-producer-single-consumer-circular
-- https://andrea.lattuada.me/blog/2019/the-design-and-implementation-of-a-lock-free-ring-buffer-with-contiguous-reservations.html
+See [`DESIGN.md`](DESIGN.md#index-based-headtail-over-pointer-based) for the
+Compiler Explorer comparison, and [`HISTORY.md`](HISTORY.md#switch-to-index-based-approach)
+for the context behind the decision.
 
 ## History
 

@@ -110,7 +110,7 @@ static inline bool cbuff_uint16_reset(cbuff_uint16_t *cb)
 }
 
 /*******************************************************************************
- * Circular byte buffer Enqueue/Dequeue (This will modify the buffer)
+ * Circular buffer Enqueue/Dequeue (This will modify the buffer)
  *******************************************************************************/
 
 static inline bool cbuff_uint16_enqueue_overwrite(cbuff_uint16_t *cb, const uint16_t b)
@@ -168,7 +168,7 @@ static inline bool cbuff_uint16_dequeue(cbuff_uint16_t *cb, uint16_t *b)
 }
 
 /*******************************************************************************
- * Circular byte buffer Peek (Will Not Modify Buffer)
+ * Circular buffer Peek (Will Not Modify Buffer)
  *******************************************************************************/
 
 static inline bool cbuff_uint16_peek(cbuff_uint16_t *cb, uint16_t *b, const size_t offset)
@@ -193,7 +193,7 @@ static inline bool cbuff_uint16_peek(cbuff_uint16_t *cb, uint16_t *b, const size
 }
 
 /*******************************************************************************
- * Circular byte buffer utility functions (Will Not Modify Buffer)
+ * Circular buffer utility functions (Will Not Modify Buffer)
  *******************************************************************************/
 
 static inline size_t cbuff_uint16_capacity(cbuff_uint16_t *cb) { return cb->capacity; }

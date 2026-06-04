@@ -110,7 +110,7 @@ static inline bool cbuff_uint64_reset(cbuff_uint64_t *cb)
 }
 
 /*******************************************************************************
- * Circular byte buffer Enqueue/Dequeue (This will modify the buffer)
+ * Circular buffer Enqueue/Dequeue (This will modify the buffer)
  *******************************************************************************/
 
 static inline bool cbuff_uint64_enqueue_overwrite(cbuff_uint64_t *cb, const uint64_t b)
@@ -168,7 +168,7 @@ static inline bool cbuff_uint64_dequeue(cbuff_uint64_t *cb, uint64_t *b)
 }
 
 /*******************************************************************************
- * Circular byte buffer Peek (Will Not Modify Buffer)
+ * Circular buffer Peek (Will Not Modify Buffer)
  *******************************************************************************/
 
 static inline bool cbuff_uint64_peek(cbuff_uint64_t *cb, uint64_t *b, const size_t offset)
@@ -193,7 +193,7 @@ static inline bool cbuff_uint64_peek(cbuff_uint64_t *cb, uint64_t *b, const size
 }
 
 /*******************************************************************************
- * Circular byte buffer utility functions (Will Not Modify Buffer)
+ * Circular buffer utility functions (Will Not Modify Buffer)
  *******************************************************************************/
 
 static inline size_t cbuff_uint64_capacity(cbuff_uint64_t *cb) { return cb->capacity; }
