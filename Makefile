@@ -13,7 +13,11 @@ CFLAGS += -Wall -std=c11 -pedantic
 all: test
 
 .PHONY: test
-test: cbuff_uint8_test
+test: cbuff_uint8_test cbuff_uint16_test cbuff_uint32_test
+
+.PHONY: generate
+generate:
+	sh generate.sh
 
 .PHONY: readme_update
 readme_update:
@@ -33,9 +37,19 @@ cbuff_uint8_test: cbuff_uint8_test.c cbuff_uint8.h
 	./cbuff_uint8_test
 
 .PHONY:
+cbuff_uint16_test: cbuff_uint16_test.c cbuff_uint16.h
+	$(CC) $(CFLAGS) $(LDFLAGS) -o cbuff_uint16_test cbuff_uint16_test.c
+	./cbuff_uint16_test
+
+.PHONY:
+cbuff_uint32_test: cbuff_uint32_test.c cbuff_uint32.h
+	$(CC) $(CFLAGS) $(LDFLAGS) -o cbuff_uint32_test cbuff_uint32_test.c
+	./cbuff_uint32_test
+
+.PHONY:
 %.o: %.c
 	$(CC) $(DEP_FLAG) $(CFLAGS) $(LDFLAGS) -o $@ -c $<
 
 .PHONY:
 clean:
-	rm -f cbuff_uint8_test
+	rm -f cbuff_uint8_test cbuff_uint16_test cbuff_uint32_test
