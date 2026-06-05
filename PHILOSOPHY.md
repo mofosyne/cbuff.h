@@ -76,6 +76,24 @@ writing, one reader in the main loop) because there is no cache coherency issue 
 the compiler is prevented from caching the values in registers. It is NOT sufficient
 for multi-core — use `_Atomic` (C11) or explicit platform memory barriers there.
 
+`_Atomic` is available (the library compiles with `-std=c11`) but deliberately not
+used by default: atomic operations imply memory barriers, which add overhead even
+when running on a single core. On a microcontroller where SPSC with an ISR is the
+common case, that cost is unnecessary.
+
+If you need multi-core safety, the change is a two-line diff in the struct:
+
+```diff
+-    volatile size_t head;
+-    volatile size_t tail;
++    _Atomic size_t head;
++    _Atomic size_t tail;
+```
+
+`_Atomic` subsumes `volatile`, so the qualifier can be dropped. Plain reads and
+writes to `_Atomic` types use sequentially consistent ordering in C11, which is
+correct (if slightly stronger than strictly necessary) for SPSC.
+
 See [`DESIGN.md`](DESIGN.md#virtual-index-approach-for-lock-free-fullempty-detection)
 for the full technical explanation, and [`HISTORY.md`](HISTORY.md#lock-free-redesign-virtual-index-approach)
 for the background.
