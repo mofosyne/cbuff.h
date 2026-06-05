@@ -78,7 +78,17 @@ the compiler from caching them in registers — correct for this use case.
 
 This is **not** sufficient for multi-core or multi-producer scenarios.
 Use `_Atomic` (C11) or platform memory barriers there, or switch to an
-RTOS queue. See [`PHILOSOPHY.md`](PHILOSOPHY.md) for the full rationale.
+RTOS queue. The change is a two-line diff in the struct:
+
+```diff
+-    volatile size_t head;
+-    volatile size_t tail;
++    _Atomic size_t head;
++    _Atomic size_t tail;
+```
+
+`_Atomic` subsumes `volatile`, so the qualifier can be dropped.
+See [`PHILOSOPHY.md`](PHILOSOPHY.md) for the full rationale.
 
 ## Memory Layout
 
